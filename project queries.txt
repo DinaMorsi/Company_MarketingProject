@@ -1,0 +1,291 @@
+-- create view to view all campaign_num for place = website
+create
+or
+alter view V_website(campaign_num) as
+Select
+        campaign_num
+from
+        target_place_prom
+where
+        place_id=100
+select
+        *
+from
+        V_website-----
+        -- create view to view customer who buy prouduct 125
+        create
+        or
+alter view cut_view(c_id,education,income) as
+Select
+        c.c_id     ,
+        c.education,
+        c.income
+from
+        cust_prod cp
+inner join
+        customer c
+on
+        cp.prod_id=125
+and     c.c_id    = cp.c_id
+select
+        *
+from
+        cut_view sp_helptext cut_view---------------------------------------------------------------
+        --functions
+        --create scaler function to get result_of_cam
+        select
+                *
+        from
+                target_place_prom
+
+create function Getresult_of_year(@target_date int) returns int
+begin
+        DECLARE @campaign int
+        SELECT
+                @campaign = result_of_cam
+        FROM
+                target_place_prom
+        WHERE
+                target_date = @target_date
+        RETURN @campaign
+end
+SELECT
+        dbo.Getresult_of_year (2016) as result_of_cam------
+        -- creat multi function to get amount of product where write a spesific
+
+create function Getamount(@format varchar(10)) returns @t table (c_id int , prod_id int , date date)
+as
+BEGIN
+        IF
+                @format = 'few'
+                        BEGIN
+                                INSERT into
+                                        @t
+                                SELECT
+                                        c_id   ,
+                                        prod_id,
+                                        date
+                                FROM
+                                        cust_prod
+                                where
+                                        Amount between 0 and 200
+                        END
+        ELSE
+                IF
+                        @format = 'many'
+                                BEGIN
+                                        INSERT into
+                                                @t
+                                        SELECT
+                                                c_id   ,
+                                                prod_id,
+                                                date
+                                        FROM
+                                                cust_prod
+                                        where
+                                                Amount between 201 and 500
+                                END
+                ELSE
+                        IF
+                                @format = 'extra'
+                                        BEGIN
+                                                INSERT into
+                                                        @t
+                                                SELECT
+                                                        c_id   ,
+                                                        prod_id,
+                                                        date
+                                                FROM
+                                                        cust_prod
+                                                where
+                                                        Amount > 500
+                                        END
+                                RETURN
+                        end
+                        select
+                                *
+                        from
+                                Getamount('few') -----------------------------------------------------------
+                                --Create proc that take campaign_num and return result , target of a year and if it achieved or not
+                                ---
+                                -----
+                                CREATE
+                                or alter PROCEDURE getcam_statues @campaign_num INT AS
+                        BEGIN
+                                DECLARE @Target_date INT,@target_camp int, @Result INT, @StatusMessage VARCHAR(100)
+                                --begin try
+                                SELECT
+                                        @Target_date =t.target_date      ,
+                                        @target_camp =target_of_promotion,
+                                        @Result      = result_of_cam
+                                FROM
+                                        target_place_prom p,
+                                        target t
+                                WHERE
+                                        p.target_date = t.target_date
+                                IF
+                                        @Result >= @target_camp SET @StatusMessage = 'Achieved'
+                                ELSE
+                                        SET @StatusMessage = 'Not Achieved'
+                                        SELECT
+                                                @target_camp   AS TargetValue,
+                                                @Result        AS ResultValue,
+                                                @StatusMessage AS CampaignStatus
+                                        --end try
+                                        --begin catch
+                                        --select
+                                        --ERROR_LINE() as error_line
+                                        --, ERROR_PROCEDURE() as error_proc ;
+                                        --end catch
+                                END;
+                                --go
+                                EXec getcampaignstatues @campaign_num =9;
+                                -----------------------
+                                create
+                                or
+                                alter TRIGGER addcustomer ON customer AFTER
+                                insert
+                                        AS
+                                select
+                                        'new customer'
+                                SELECT
+                                        c_id        ,
+                                        year_birth  ,
+                                        dt_of_enroll,
+                                        income
+                                FROM
+                                        inserted
+                                insert into
+                                        customer
+                                                (
+                                                        c_id           ,
+                                                        year_birth     ,
+                                                        education      ,
+                                                        marital_statues,
+                                                        income         ,
+                                                        kidhome        ,
+                                                        teenhome       ,
+                                                        dt_of_enroll   ,
+                                                        recnency       ,
+                                                        complain
+                                                )
+                                values
+                                        (
+                                                53,1979              ,
+                                                'Graduation'         ,
+                                                'Married'            ,
+                                                13000,1              ,
+                                                2                    ,
+                                                '2020-12-02 00:00:00',
+                                                33,0
+                                        )
+                                        ,
+                                        (
+                                                54,1979              ,
+                                                'Graduation'         ,
+                                                'Married'            ,
+                                                13000,1              ,
+                                                2                    ,
+                                                '2020-12-02 00:00:00',
+                                                33,0
+                                        )
+                                ----------- create cursor that incrase  price 5% if product price <100 and if price >100 increse it 10%-----
+                                DECLARE c2 CURSOR FOR
+                                SELECT
+                                        price
+                                FROM
+                                        product FOR UPDATE
+                                        DECLARE @price decimal OPEN c2
+                                        FETCH   c2
+                                        INTO
+                                                @price WHILE @@fetch_status =0
+                                        BEGIN
+                                                IF
+                                                         (@price < 100)
+                                                                BEGIN
+                                                                        UPDATE
+                                                                                product
+                                                                        SET
+                                                                                price= 1.05 * price
+                                                                        WHERE
+                                                                                CURRENT OF c2
+                                                                END
+                                                ELSE
+                                                        BEGIN
+                                                                UPDATE
+                                                                        product
+                                                                SET
+                                                                        price = 1.1 * price
+                                                                WHERE
+                                                                        CURRENT OF c2
+                                                        end
+                                                FETCH   c2
+                                                INTO
+                                                        @price
+                                                END CLOSE c2 DEALLOCATE c2----------------------------------------------------------------------
+                                                --test to Create an index on column (c_id) that allow to cluster
+                                                --the data in the table customer. What will happen?
+                                                create clustered index cust_cluster
+                                                on customer
+                                                        (
+                                                                [c_id]
+                                                        )
+                                                select
+                                                        *
+                                                from
+                                                        customer
+                                                create nonclustered index noncust_cluster
+                                                on product
+                                                        (
+                                                                [price]
+                                                        )
+                                                select
+                                                        *
+                                                from
+                                                        product -------------------------------------------------------
+                                                        --- Average income and education level of customers:
+                                                        SELECT
+                                                                education,
+                                                                AVG(income) AS Average_income
+                                                        FROM
+                                                                customer
+                                                        GROUP BY
+                                                                education;
+                                                        ----------------------------------------------------
+                                                        -- Customers with complaints and their recency of purchase:
+                                                        SELECT
+                                                                c_id    ,
+                                                                recnency,
+                                                                complain
+                                                        FROM
+                                                                customer
+                                                        WHERE
+                                                                complain <> 0;
+                                                        -----------------------------------------------------
+                                                        -- Product with highest Sales and Revenue
+                                                        SELECT
+                                                                TOP 5 pr.id                  ,
+                                                                pr.name                      ,
+                                                                SUM(cp.Amount)            AS Total_Sales,
+                                                                SUM(cp.Amount * pr.price) AS Total_Revenue
+                                                        FROM
+                                                                cust_prod cp
+                                                        JOIN
+                                                                product pr
+                                                        ON
+                                                                cp.prod_id = pr.id
+                                                        GROUP BY
+                                                                pr.id,
+                                                                pr.name
+                                                        ORDER BY
+                                                                total_sales DESC,
+                                                                total_revenue DESC;
+                                                        --------------------------------------------------------------
+                                                        -- Places with the most customer interest:
+                                                        SELECT
+                                                                name,
+                                                                num_of_interest
+                                                        FROM
+                                                                place
+                                                        ORDER BY
+                                                                num_of_interest DESC; 
